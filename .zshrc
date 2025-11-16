@@ -8,6 +8,7 @@ JAVA_HOME="/opt/homebrew/opt/openjdk"
 PATH=$PATH:/${HOME}/go/bin
 PATH=$PATH:/opt/homebrew/opt/libpq/bin
 PATH=$PATH:/opt/homebrew/opt/openjdk/bin
+PATH=$PATH:/Applications/love.app/Contents/MacOS
 
 #Alias
 alias vim=nvim
