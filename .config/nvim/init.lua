@@ -1,10 +1,166 @@
-require('core.keybinds')
-require('core.settings')
-require('core.lazy')
+--[[
+-- My config
+--]]
 
--- make statusline transparent
-vim.cmd(':hi statusline guibg=NONE')
-vim.cmd.colorscheme 'yugen'
+
+-- locals to reduce boilerplate
+local opt = vim.opt
+local map = vim.keymap.set
+local pack = vim.pack
+local bindopts = { noremap = true, silent = true }
+local lsp = vim.lsp.buf
+
+-- neovim settings
+opt.swapfile = false
+opt.number = true
+opt.tabstop = 4
+opt.shiftwidth = 4
+opt.smartindent = true
+
+vim.g.mapleader = " "
+
+-- general keybinds
+map("n", "<leader>pv", ":Ex<CR>", bindopts)
+map("n", "<C-u>", "<C-u>zz", bindopts)
+map("n", "<C-d>", "<C-d>zz", bindopts)
+-- show warnings/errors
+map("n", "<leader>e", ":lua vim.diagnostic.open_float(0, { scope = 'line' })<CR>")
+-- lsp code action
+map("n", "<leader>ca", lsp.code_action, bindopts)
+map("n", "<leader>rn", lsp.rename, bindopts)
+map("n", "gd", lsp.definition, bindopts)
+map("n", "K", lsp.hover, bindopts)
+
+-- ADD NEW PLUGINS HERE
+pack.add(
+	{
+		"https://github.com/nvim-lua/plenary.nvim",
+		"https://github.com/mason-org/mason.nvim",
+		"https://github.com/neovim/nvim-lspconfig",
+		"https://github.com/tpope/vim-vinegar",
+		{
+			src = "https://github.com/nvim-treesitter/nvim-treesitter",
+			version = "master",
+		},
+		{
+			src = "https://github.com/nvim-telescope/telescope.nvim",
+			version =  "0.1.x",
+		},
+		{
+			src = "https://github.com/ThePrimeagen/harpoon",
+			version = "harpoon2",
+		},
+		{
+			src = "https://github.com/saghen/blink.cmp",
+			version = vim.version.range("^1"),
+		},
+	}
+)
+
+-- lsp config
+vim.lsp.config["luals"] = {
+  -- Command and arguments to start the server.
+  cmd = { "lua-language-server" },
+  -- Filetypes to automatically attach to.
+  filetypes = { "lua" },
+  -- Sets the "root directory" to the parent directory of the file in the
+  -- current buffer that contains either a ".luarc.json" or a
+  -- ".luarc.jsonc" file. Files that share a root directory will reuse
+  -- the connection to the same LSP server.
+  root_markers = { ".luarc.json", ".luarc.jsonc" },
+  -- Specific settings to send to the server. The schema for this is
+  -- defined by the server. For example the schema for lua-language-server
+  -- can be found here https://raw.githubusercontent.com/LuaLS/vscode-lua/master/setting/schema.json
+  settings = {
+    Lua = {
+      runtime = {
+        version = "LuaJIT",
+      }
+    }
+  }
+}
+
+vim.lsp.enable({
+	"gopls",
+	"lua_ls",
+})
+
+-- plugin startup and configuration
+
+-- mason
+require("mason").setup({})
+
+-- harpoon
+local harpoon = require "harpoon"
+harpoon:setup()
+
+map("n", "<leader>a",function() harpoon:list():add() end, bindopts)
+map("n", "<C-e>", function() harpoon.ui:toggle_quick_menu(harpoon:list()) end, bindopts)
+map("n", "<C-h>", function() harpoon:list():select(1) end, bindopts)
+map("n", "<C-j>", function() harpoon:list():select(2) end, bindopts)
+map("n", "<C-k>", function() harpoon:list():select(3) end, bindopts)
+map("n", "<C-l>", function() harpoon:list():select(4) end, bindopts)
+
+-- telescope
+local builtin = require "telescope.builtin"
+map("n", "<leader>fh", builtin.help_tags, bindopts)
+map("n", "<leader>sf", builtin.find_files, bindopts)
+map("n", "<leader>sg", builtin.live_grep, bindopts)
+map("n", "<leader><leader>", builtin.help_tags, bindopts)
+map("n", "<leader>fd", builtin.diagnostics, bindopts)
+
+-- treesitter
+
+require "nvim-treesitter.configs".setup({
+	ensure_installed = { "c" },
+	auto_install = true,
+	highlight = {
+		enable = true,
+	},
+})
+
+-- blink
+
+require "blink.cmp".setup({
+	fuzzy = { implementation = "prefer_rust_with_warning" },
+	signature = { enabled = true },
+	keymap = {
+		preset = "default",
+		["<C-space>"] =  {},
+		["<Tab>"] =  {},
+		["<S-Tab>"] =  {},
+		["<C-e>"] =  {},
+		["<CR>"] =  { "accept", "fallback" },
+		["<C-p>"] =  { "select_prev", "fallback" },
+		["<C-n>"] =  { "select_next", "fallback" },
+		["<C-b>"] =  { "scroll_documentation_down", "fallback" },
+		["<C-f>"] =  { "scroll_documentation_up", "fallback" },
+	},
+	appearance = {
+		use_nvim_cmp_as_default = true,
+		nerd_font_variant = "normal",
+	},
+	completion = {
+		documentation = {
+			auto_show = true,
+			auto_show_delay_ms = 200,
+		},
+	},
+	cmdline = {
+		keymap = {
+			preset = "inherit",
+		["<CR>"] = { "accept_and_enter", "fallback" },
+		},
+	},
+	sources = { default = { "lsp" }, },
+})
+
+-- visual settings and theme
+vim.cmd(":hi statusline guibg=NONE")
 vim.api.nvim_set_hl(0, "Normal", { bg = "None" })
 vim.api.nvim_set_hl(0, "NormalFloat", { bg = "None" })
 
+
+opt.guicursor = "i:block"
+opt.winborder = "rounded"
+opt.termguicolors = true
