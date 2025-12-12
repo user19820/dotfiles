@@ -16,6 +16,8 @@ opt.number = true
 opt.tabstop = 4
 opt.shiftwidth = 4
 opt.smartindent = true
+opt.scrolloff = 20
+opt.wrap = false
 
 vim.g.mapleader = " "
 
@@ -29,11 +31,14 @@ map("n", "<leader>e", ":lua vim.diagnostic.open_float(0, { scope = 'line' })<CR>
 map("n", "<leader>ca", lsp.code_action, bindopts)
 map("n", "<leader>rn", lsp.rename, bindopts)
 map("n", "gd", lsp.definition, bindopts)
+map("n", "gr", lsp.references, bindopts)
+map("n", "gd", lsp.implementation, bindopts)
 map("n", "K", lsp.hover, bindopts)
 
 -- ADD NEW PLUGINS HERE
 pack.add(
 	{
+		"https://github.com/bettervim/yugen.nvim",
 		"https://github.com/nvim-lua/plenary.nvim",
 		"https://github.com/mason-org/mason.nvim",
 		"https://github.com/neovim/nvim-lspconfig",
@@ -58,6 +63,8 @@ pack.add(
 )
 
 -- lsp config
+
+-- lua
 vim.lsp.config["luals"] = {
   -- Command and arguments to start the server.
   cmd = { "lua-language-server" },
@@ -80,10 +87,33 @@ vim.lsp.config["luals"] = {
   }
 }
 
+-- go
+
+-- This autocmd runs gofmt on save
+vim.api.nvim_create_autocmd("BufWritePre", {
+	pattern = "*.go",
+	callback = function ()
+		pcall(function ()
+			vim.lsp.buf.code_action({
+				context = {
+					only = {
+						"source.organizeImports",
+					},
+					diagnostics = {},
+				},
+				apply = true,
+			})
+
+			vim.lsp.buf.format()
+		end)
+	end
+})
+
 vim.lsp.enable({
 	"gopls",
 	"lua_ls",
 })
+
 
 -- plugin startup and configuration
 
@@ -164,3 +194,40 @@ vim.api.nvim_set_hl(0, "NormalFloat", { bg = "None" })
 opt.guicursor = "i:block"
 opt.winborder = "rounded"
 opt.termguicolors = true
+vim.cmd.colorscheme "yugen"
+
+-- statusline
+local function filepath()
+	local fpath = vim.fn.fnamemodify(vim.fn.expand("%"), ":~:.:h")
+
+	if fpath == "" or fpath == "." then
+		return " "
+	end
+
+	return string.format(" %%<%s/", fpath)
+end
+
+StatusLine = {}
+
+StatusLine.active = function ()
+	return table.concat({
+		"%#Statusline#",
+		"%#Normal# ",
+		filepath(),
+	})
+end
+
+StatusLine.inactive = function ()
+	return " %F"
+end
+
+vim.api.nvim_exec(
+	[[
+		augroup StatusLine
+		au!
+		au WinEnter,BufEnter * setlocal statusline=%!v:lua.StatusLine.active()
+		au WinLeave,BufLeave * setlocal statusline=%!v:lua.StatusLine.inactive()
+		augroup END
+	]],
+	false
+)
