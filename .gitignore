@@ -14,5 +14,7 @@
 !.config/nvim/lua/plugins/*
 !.config/wezterm/
 !.config/wezterm/*
+!.config/aerospace/
+!.config/aerospace/*
 !.zshrc
 !.tmux.conf
