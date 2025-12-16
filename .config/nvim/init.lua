@@ -31,8 +31,6 @@ map("n", "<leader>e", ":lua vim.diagnostic.open_float(0, { scope = 'line' })<CR>
 map("n", "<leader>ca", lsp.code_action, bindopts)
 map("n", "<leader>rn", lsp.rename, bindopts)
 map("n", "gd", lsp.definition, bindopts)
-map("n", "gr", lsp.references, bindopts)
-map("n", "gd", lsp.implementation, bindopts)
 map("n", "K", lsp.hover, bindopts)
 
 -- ADD NEW PLUGINS HERE
@@ -49,7 +47,7 @@ pack.add(
 		},
 		{
 			src = "https://github.com/nvim-telescope/telescope.nvim",
-			version =  "0.1.x",
+			version =  "v0.2.0",
 		},
 		{
 			src = "https://github.com/ThePrimeagen/harpoon",
@@ -138,6 +136,11 @@ map("n", "<leader>sf", builtin.find_files, bindopts)
 map("n", "<leader>sg", builtin.live_grep, bindopts)
 map("n", "<leader><leader>", builtin.help_tags, bindopts)
 map("n", "<leader>fd", builtin.diagnostics, bindopts)
+
+map("n", "gr", builtin.lsp_references, bindopts)
+map("n", "gd", builtin.lsp_definitions, bindopts)
+map("n", "gI", builtin.lsp_implementations, bindopts)
+map("n", "<leader>E", builtin.diagnostics, bindopts)
 
 -- treesitter
 
