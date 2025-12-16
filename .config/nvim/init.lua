@@ -9,6 +9,7 @@ local map = vim.keymap.set
 local pack = vim.pack
 local bindopts = { noremap = true, silent = true }
 local lsp = vim.lsp.buf
+local api = vim.api
 
 -- neovim settings
 opt.swapfile = false
@@ -22,16 +23,32 @@ opt.wrap = false
 vim.g.mapleader = " "
 
 -- general keybinds
+
 map("n", "<leader>pv", ":Ex<CR>", bindopts)
 map("n", "<C-u>", "<C-u>zz", bindopts)
 map("n", "<C-d>", "<C-d>zz", bindopts)
 -- show warnings/errors
 map("n", "<leader>e", ":lua vim.diagnostic.open_float(0, { scope = 'line' })<CR>")
--- lsp code action
 map("n", "<leader>ca", lsp.code_action, bindopts)
 map("n", "<leader>rn", lsp.rename, bindopts)
-map("n", "gd", lsp.definition, bindopts)
 map("n", "K", lsp.hover, bindopts)
+
+-- This is a hack to enable me to use plugins which would require a "build"
+-- step, like telescope-fzf-native.
+-- More info about this here: 
+-- https://github.com/neovim/neovim/pull/35360#issuecomment-3212327279
+local augroup = api.nvim_create_augroup("build_system", { clear = false })
+api.nvim_create_autocmd("PackChanged", {
+	group = augroup,
+	pattern = "*",
+	callback = function (e)
+		local p = e.data
+		local run_task = (p.spec.data or {}).run
+		if p.kind ~= "delete" and type(run_task) == "function" then
+			pcall(run_task, p)
+		end
+	end
+})
 
 -- ADD NEW PLUGINS HERE
 pack.add(
@@ -57,6 +74,15 @@ pack.add(
 			src = "https://github.com/saghen/blink.cmp",
 			version = vim.version.range("^1"),
 		},
+		"https://github.com/nvim-telescope/telescope-ui-select.nvim",
+		{
+			src = "https://github.com/nvim-telescope/telescope-fzf-native.nvim",
+			data = {
+				run = function (p)
+					vim.system("bash", {stdin = "which make && cd" .. p.spec.path .. "&& make"})
+				end
+			},
+		}
 	}
 )
 
@@ -116,9 +142,11 @@ vim.lsp.enable({
 -- plugin startup and configuration
 
 -- mason
+
 require("mason").setup({})
 
 -- harpoon
+
 local harpoon = require "harpoon"
 harpoon:setup()
 
@@ -130,6 +158,17 @@ map("n", "<C-k>", function() harpoon:list():select(3) end, bindopts)
 map("n", "<C-l>", function() harpoon:list():select(4) end, bindopts)
 
 -- telescope
+require("telescope").setup({
+	-- this part configures ui-select, which allows
+	-- telescope to be used as the selection menu UI by
+	-- other parts of neovim, like lsp code actions
+	extensions = {
+		["ui-select"] = {
+			require("telescope.themes").get_dropdown()
+		}
+	}
+})
+
 local builtin = require "telescope.builtin"
 map("n", "<leader>fh", builtin.help_tags, bindopts)
 map("n", "<leader>sf", builtin.find_files, bindopts)
@@ -141,6 +180,18 @@ map("n", "gr", builtin.lsp_references, bindopts)
 map("n", "gd", builtin.lsp_definitions, bindopts)
 map("n", "gI", builtin.lsp_implementations, bindopts)
 map("n", "<leader>E", builtin.diagnostics, bindopts)
+map("n", "<leader>/",function ()
+	builtin.current_buffer_fuzzy_find(
+		require("telescope.themes").get_dropdown({
+			winblend = 10,
+			previewer = false,
+		})
+	)
+end , bindopts)
+
+-- telescope requires you to load extensions after
+-- you call it's setup function
+require("telescope").load_extension("ui-select")
 
 -- treesitter
 
