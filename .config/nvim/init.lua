@@ -7,9 +7,10 @@
 local opt = vim.opt
 local map = vim.keymap.set
 local pack = vim.pack
-local bindopts = { noremap = true, silent = true }
 local lsp = vim.lsp.buf
 local api = vim.api
+local cmd = vim.cmd
+local bindopts = { noremap = true, silent = true }
 
 -- neovim settings
 opt.swapfile = false
@@ -19,6 +20,7 @@ opt.shiftwidth = 4
 opt.smartindent = true
 opt.scrolloff = 20
 opt.wrap = false
+opt.helpheight = 999
 
 vim.g.mapleader = " "
 
@@ -114,11 +116,11 @@ vim.lsp.config["luals"] = {
 -- go
 
 -- This autocmd runs gofmt on save
-vim.api.nvim_create_autocmd("BufWritePre", {
+api.nvim_create_autocmd("BufWritePre", {
 	pattern = "*.go",
 	callback = function ()
 		pcall(function ()
-			vim.lsp.buf.code_action({
+			lsp.code_action({
 				context = {
 					only = {
 						"source.organizeImports",
@@ -128,7 +130,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 				apply = true,
 			})
 
-			vim.lsp.buf.format()
+			lsp.format()
 		end)
 	end
 })
@@ -239,13 +241,36 @@ require "blink.cmp".setup({
 	sources = { default = { "lsp" }, },
 })
 
--- visual settings and theme
-vim.cmd(":hi statusline guibg=NONE")
-vim.api.nvim_set_hl(0, "Normal", { bg = "None" })
-vim.api.nvim_set_hl(0, "NormalFloat", { bg = "None" })
+-- statusline
 
+local get_branch = function()
+	local gitB = io.popen("git branch --show-current")
+
+	if gitB == nil then
+		error("statusline: show git branch: returned null")
+	end
+
+	local branch = gitB:read("*all")
+	gitB:close()
+	branch = branch:gsub("%s+$", "")
+
+	return branch
+end
+
+local statusline = {
+	"%<%f %= ",
+	get_branch(),
+	" ",
+}
+
+vim.o.statusline = table.concat(statusline)
+
+-- visual settings and themecmd(":hi statusline guibg=NONE")
+cmd(":hi statusline guibg=NONE")
+api.nvim_set_hl(0, "Normal", { bg = "None" })
+api.nvim_set_hl(0, "NormalFloat", { bg = "None" })
 
 opt.guicursor = "i:block"
 opt.winborder = "rounded"
 opt.termguicolors = true
-vim.cmd.colorscheme "yugen"
+cmd.colorscheme "yugen"
