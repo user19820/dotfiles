@@ -21,6 +21,7 @@ opt.smartindent = true
 opt.scrolloff = 20
 opt.wrap = false
 opt.helpheight = 999
+opt.clipboard = "unnamedplus"
 
 vim.g.mapleader = " "
 
@@ -113,6 +114,10 @@ vim.lsp.config["luals"] = {
   }
 }
 
+-- rust (Uncomment when you need to configure rust-analyzer)
+--
+-- vim.lsp.config["rust-analyzer"] = {}
+
 -- go
 
 -- This autocmd runs gofmt on save
@@ -135,9 +140,14 @@ api.nvim_create_autocmd("BufWritePre", {
 	end
 })
 
+-- c
+vim.lsp.config["clang"] = {}
+
 vim.lsp.enable({
 	"gopls",
 	"lua_ls",
+	"rust_analyzer",
+	"clangd",
 })
 
 
