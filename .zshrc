@@ -1,13 +1,10 @@
 eval "$(/opt/homebrew/bin/brew shellenv)"
 eval "$(fnm env --use-on-cd --shell zsh)"
 
-#Environment
-JAVA_HOME="/opt/homebrew/opt/openjdk"
 
 #Path
 PATH=$PATH:/${HOME}/go/bin
 PATH=$PATH:/opt/homebrew/opt/libpq/bin
-PATH=$PATH:/opt/homebrew/opt/openjdk/bin
 PATH=$PATH:/Applications/love.app/Contents/MacOS
 
 #Alias
@@ -15,6 +12,8 @@ alias vim=nvim
 alias cfg="nvim ~/.config"
 alias src="source ~/.zshrc"
 alias la="ls -la"
+alias tns="tmux new-session -s"
+alias ta="tmux attach -t"
 
 #Prompt
 setopt prompt_subst
