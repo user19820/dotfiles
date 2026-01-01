@@ -14,6 +14,7 @@ alias src="source ~/.zshrc"
 alias la="ls -la"
 alias tns="tmux new-session -s"
 alias ta="tmux attach -t"
+alias tls="tmux ls"
 
 #Prompt
 setopt prompt_subst
