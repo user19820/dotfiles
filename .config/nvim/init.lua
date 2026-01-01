@@ -276,11 +276,19 @@ local statusline = {
 vim.o.statusline = table.concat(statusline)
 
 -- visual settings and themecmd(":hi statusline guibg=NONE")
-cmd(":hi statusline guibg=NONE")
-api.nvim_set_hl(0, "Normal", { bg = "None" })
-api.nvim_set_hl(0, "NormalFloat", { bg = "None" })
-
 opt.guicursor = "i:block"
 opt.winborder = "rounded"
 opt.termguicolors = true
 cmd.colorscheme "yugen"
+
+local function set_transparent_bg()
+  vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+  vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+  vim.api.nvim_set_hl(0, "NormalNC", { bg = "none" })
+  vim.api.nvim_set_hl(0, "SignColumn", { bg = "none" })
+  vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "none" })
+  vim.api.nvim_set_hl(0, "StatusLine", { bg = "none" })
+  vim.api.nvim_set_hl(0, "StatusLineNC", { bg = "none" })
+end
+
+set_transparent_bg()
