@@ -61,6 +61,7 @@ pack.add(
 		"https://github.com/mason-org/mason.nvim",
 		"https://github.com/neovim/nvim-lspconfig",
 		"https://github.com/tpope/vim-vinegar",
+		"https://github.com/tpope/vim-fugitive",
 		{
 			src = "https://github.com/nvim-treesitter/nvim-treesitter",
 			version = "master",
@@ -85,7 +86,7 @@ pack.add(
 					vim.system("bash", {stdin = "which make && cd" .. p.spec.path .. "&& make"})
 				end
 			},
-		}
+		},
 	}
 )
 
@@ -251,6 +252,10 @@ require "blink.cmp".setup({
 	sources = { default = { "lsp" }, },
 })
 
+-- fugitive
+
+map("n", "<leader>gb", ":Git blame<CR>", bindopts)
+
 -- statusline
 
 local get_branch = function()
@@ -289,6 +294,7 @@ local function set_transparent_bg()
   vim.api.nvim_set_hl(0, "EndOfBuffer", { bg = "none" })
   vim.api.nvim_set_hl(0, "StatusLine", { bg = "none" })
   vim.api.nvim_set_hl(0, "StatusLineNC", { bg = "none" })
+  vim.api.nvim_set_hl(0, "Visual", { bg = "#000000" })
 end
 
 set_transparent_bg()

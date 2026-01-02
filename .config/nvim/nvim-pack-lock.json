@@ -44,6 +44,10 @@
       "src": "https://github.com/nvim-telescope/telescope.nvim",
       "version": "'v0.2.0'"
     },
+    "vim-fugitive": {
+      "rev": "61b51c09b7c9ce04e821f6cf76ea4f6f903e3cf4",
+      "src": "https://github.com/tpope/vim-fugitive"
+    },
     "vim-vinegar": {
       "rev": "bb1bcddf43cfebe05eb565a84ab069b357d0b3d6",
       "src": "https://github.com/tpope/vim-vinegar"
